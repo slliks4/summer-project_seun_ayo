@@ -1,10 +1,9 @@
 # characters.py
 
 class Players:
-    def __init__(self, name: str, level: int, rank: str, diamond: int) -> None:
+    def __init__(self, name: str, level: int, diamond: int) -> None:
         self.__name = name
         self.__level = level
-        self.__rank = rank
         self.__diamond = diamond
 
     def get_total_diamonds(self) -> int:
@@ -13,47 +12,64 @@ class Players:
     def get_player_level(self) -> int:
         return self.__level
 
-    def get_player_rank(self) -> str:
-        return self.__rank
+    def increase_player_level(self) -> None:
+        self.__level += 1
 
-    # To be used within a try except block to prevent the coding from breaking
-    def use_diamonds(self, amount: int) -> None:
+    def use_diamonds(self, amount: int) -> bool:
+        """Return True if paid, False if insufficient diamonds."""
         if amount > self.__diamond:
-            raise Exception('Insufficient diamonds')
-
-        # Update Diamond
+            return False
         self.__diamond -= amount
+        return True
 
     def add_diamonds(self, amount: int) -> None:
-        # Update Diamond
         self.__diamond += amount
 
     def __str__(self) -> str:
         return (
             f"Player: {self.__name}, Level: {self.__level}, "
-            f"Rank: {self.__rank}, Diamonds: {self.__diamond}"
+            f"Diamonds: {self.__diamond}"
         )
 
 
 class DiamondPlayer(Players):
-    # Constants
     COST = 2
 
-    def __init__(self, name: str, level: int, rank: str, diamond: int) -> None:
-        super().__init__(name, level, rank, diamond)
-        self.__hint_count = 0
+    def __init__(self, name: str, level: int, diamond: int) -> None:
+        super().__init__(name, level, diamond)
+        self.__hint_count = 1
+        self.__hint_cost = self.COST
 
-    def buy_hint(self) -> None:
-        try:
-            self.use_diamonds(self.COST)
-            self.__hint_count += 1
-            self.COST += 1
+    def buy_hint(self) -> bool:
+        """
+        Attempt to purchase one hint at current hint cost.
+        Returns True if successful, False otherwise.
+        """
+        if not self.use_diamonds(self.__hint_cost):
+            return False
 
-        except Exception as e:
-            print(f"Hint not Purchased: {e}")
+        self.__hint_count += 1
+        self.__hint_cost += 1
+        return True
 
     def get_hint_count(self) -> int:
         return self.__hint_count
 
+    def get_hint_cost(self) -> int:
+        return self.__hint_cost
+
+    def use_hint(self) -> bool:
+        """
+        Consume one purchased hint.
+        Returns True if a hint was available, False otherwise.
+        """
+        if self.__hint_count <= 0:
+            return False
+        self.__hint_count -= 1
+        return True
+
     def __str__(self) -> str:
-        return f"{super().__str__()}, Hints Used: {self.__hint_count}"
+        return (
+            f"{super().__str__()}, "
+            f"Hints Available: {self.__hint_count}"
+        )
