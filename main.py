@@ -1,124 +1,198 @@
-from characters import DiamondPlayer
-from items import GetHint
-import random
+# main.py
 
-# Create player
-player = DiamondPlayer("suen", 1, 5)
-
-# Create puzzle bank
-puzzles = [
-    GetHint(1, "P__hon", "Python", "Popular programming language"),
-    GetHint(4, "J__a", "Java", "Coffee or code"),
-    GetHint(4, "H__ML", "HTML", "Markup language for websites"),
-    GetHint(4, "CS__", "CSS", "Used to style HTML"),
-    GetHint(4, "J__aSc__pt", "JavaScript", "Client-side scripting language"),
-    GetHint(4, "Al__r__thm", "Algorithm", "Step-by-step procedure"),
-    GetHint(4, "D__ta", "Data", "What you process"),
-    GetHint(4, "N__tw__rk", "Network", "Connects computers"),
-    GetHint(4, "R__uter", "Router", "Directs traffic in a network"),
-    GetHint(4, "Sw__t__h", "Switch", "Connects devices in a LAN"),
-    GetHint(4, "Ar__ay", "Array", "Ordered collection of elements"),
-    GetHint(4, "St__ck", "Stack", "Last In First Out data structure"),
-    GetHint(4, "Q__eue", "Queue", "First In First Out data structure"),
-    GetHint(4, "R__c__rs__on", "Recursion", "Function calling itself"),
-    GetHint(4, "Va__i__ble", "Variable", "Stores data temporarily"),
-    GetHint(4, "C__mp__ler", "Compiler", "Translates source code"),
-    GetHint(2, "D__b__gger", "Debugger", "Helps find bugs"),
-    GetHint(2, "O__er__ting S__st__m", "Operating System", "Manages hardware and software"),
-    GetHint(2, "C__ch__", "Cache", "Fast small memory"),
-    GetHint(2, "R__M", "RAM", "Volatile memory"),
-    GetHint(2, "R__M", "ROM", "Non-volatile memory"),
-    GetHint(2, "F__le", "File", "Stores data on disk"),
-    GetHint(2, "D__ta__ase", "Database", "Structured data storage"),
-    GetHint(2, "SQL", "SQL", "Query language for databases"),
-    GetHint(2, "N__de", "Node", "Unit in a linked list or tree"),
-    GetHint(10, "Ed__e", "Edge", "Connection in a graph"),
-    GetHint(10, "Gr__ph", "Graph", "Set of nodes and edges"),
-    GetHint(10, "Tr__e", "Tree", "Hierarchical data structure"),
-    GetHint(8, "B__n__ry", "Binary", "Base 2 number system"),
-    GetHint(9, "H__sh", "Hash", "Used for quick lookup"),
-    GetHint(3, "F__nction", "Function", "Reusable block of code"),
-    GetHint(7, "C__ass", "Class", "Blueprint for an object"),
-    GetHint(3, "Ob__ect", "Object", "Instance of a class"),
-    GetHint(3, "Enc__ps__lation", "Encapsulation", "Hiding internal details"),
-    GetHint(7, "In__er__t__nce", "Inheritance", "Deriving from a parent class"),
-    GetHint(7, "P__ly__orp__ism", "Polymorphism", "Many forms of one interface"),
-    GetHint(9, "I__ter__ace", "Interface", "Defines method signatures"),
-    GetHint(9, "A__str__ct", "Abstract", "Incomplete class"),
-    GetHint(7, "Cl__ud", "Cloud", "Remote servers on the internet"),
-    GetHint(5, "G__t", "Git", "Version control system"),
-    GetHint(5, "Br__nch", "Branch", "Parallel version of code"),
-    GetHint(5, "M__rg__", "Merge", "Combine code changes"),
-    GetHint(5, "Re__o", "Repo", "Code repository"),
-    GetHint(6, "C__mm__t", "Commit", "Save changes in git"),
-    GetHint(6, "P__ll", "Pull", "Fetch latest code"),
-    GetHint(6, "P__sh", "Push", "Send code to remote"),
-    GetHint(6, "API", "API", "Interface between systems"),
-    GetHint(6, "Th__e__d", "Thread", "Unit of CPU execution"),
-    GetHint(8, "P__oc__ss", "Process", "Running instance of a program"),
-]
+from characters import Character, HealerWoman, HulkMan
+from items import HealingPotion, Sniper, StrengthBuff
 
 
-# -- Game loop --
-while player.get_total_diamonds() > 0:
-    # Filter puzzles matching the player's current level
-    available = [
-        p for p in puzzles
-        if p.get_question_level() == player.get_player_level()
-    ]
-    if not available:
-        print("No puzzles left for your level.")
-        break
+# Introduction To the Game
+def intro() -> str:
+    print("🌍 Welcome to MOAB Games: Mother Of All Battles 🌍\n")
+    player_name = input("Enter your name to begin: ")
+    print(f"\nWakie Wakie, Survivor {player_name}!")
+    print("""
+As you know, Earth as we once knew it has fallen.
+War. AI takeover. Collapse.
+You are a survivor from the Moab Order — Earth’s final resistance.
 
-    current = random.choice(available)
-    print(player.get_total_diamonds())
-    print(current)
+Your mission:
+- Survive the warzone of Earth 2.0
+- Rescue clean humans
+- Destroy corrupted enemies (AI and Revolutionists)
 
-    # Inner loop: try to solve the current puzzle
-    while current.get_remaining_rounds() > 0:
-        # Show how many hints the player has
-        print(
-            f"Hints: {player.get_hint_count()} "
-            f"(Next costs {player.get_hint_cost()} diamonds) "
-        )
+Your stats, your items, and your choices will determine your role and survival.
 
-        guess = input("Your answer (or type 'hint'): ").strip()
+Godspeed.
+    """)
+    return player_name
 
-        if guess.lower() == "hint":
-            # If they already purchased hints, use one
-            if player.use_hint():
-                print(f"Hint -> {current.get_hint()}")
-            else:
-                # Offer to purchase a hint
-                cost = player.get_hint_cost()
-                buy = input(f"No hints left. Buy one for "
-                            f"{cost} diamonds? (y/n): ").strip().lower()
-                if buy == "y" and player.buy_hint():
-                    print("Hint purchased.")
-                    player.use_hint()
-                    print(f"Hint -> {current.get_hint()}")
-                else:
-                    print("No hint this time.")
-            continue
 
-        # Check answer
-        if current.is_answer_correct(guess):
-            print("Correct!")
-            player.add_diamonds(1)
-            player.increase_player_level()
+# Character Selection
+def select_character(name: str):
+    # Loops Till a User select a Valid option
+    while True:
+        print("\nChoose your character:")
+        print("1. Base Character")
+        print("2. Hulk Man")
+        print("3. Healer Woman")
+        print("0. Quit Game")
+        choice = input("Your choice: ")
+
+        # Character 1 - Base Character
+        if choice == "1":
+            return Character(
+                name,
+                strength=0,
+                agility=0,
+                intelligence=0,
+                speed=0,
+                healing=0
+            )
+
+        # Character 2 - HulkMan
+        if choice == "2":
+            return HulkMan(name)
+        # Character 1 - HulkMan
+        if choice == "3":
+            return HealerWoman(name)
+        # Quite Game
+        elif choice == "0":
+            print("Farewell, warrior.")
+            exit()
+        # Catch for Invalid Options
+        else:
+            print("Invalid choice. Try again.")
+
+
+# Item Selection
+def select_item(character):
+    # Loops Till a User select a Valid option
+    while True:
+        print("\nChoose an item to carry:")
+        print("1. Healing Potion (+5 Healing)")
+        print("2. Strength Buff(+5 Strength)")
+        print("3. Sniper Rifle (Damage x1.5)")
+        print("0. No Item")
+        item = input("Your choice: ")
+
+        # Item 1 - Potion
+        if item == "1":
+            potion = HealingPotion("Nano Healing", increased_health_by=5)
+            character.add_item(potion)
+            print("Healing Potion added.")
+            break
+        # Item 2 - Strength Buff
+        if item == "2":
+            strength_buff = StrengthBuff(
+                "Super Concrete",
+                increased_strength_by=5
+            )
+            character.add_item(strength_buff)
+            print("Strength Buff added.")
+            break
+        # Item 2 - Sniper rifle
+        elif item == "3":
+            sniper = Sniper("Eagle Sniper", range_multiplier=1.5)
+            character.add_item(sniper)
+            print("Sniper Rifle added.")
+            break
+        # No Item Selected
+        elif item == "0":
+            print("No item selected.")
+            break
+        # Wrong Input
+        else:
+            print("Invalid input. Try again.")
+
+
+# Use Item
+def use_item(character):
+    # Get the list of Item in Character Inventory
+    inventory = character.get_inventory()
+
+    if not inventory:
+        print("Inventory is empty.")
+        return
+
+    print("\nInventory:")
+
+    # Item Count
+    count = 1
+    # Loop and list out character items
+    for item in inventory:
+        print(f"{count}. {item.get_name()}")
+        count += 1
+
+    # Throw an error if user enters anything except from an ineger
+    try:
+        choice = int(input("Use which item? (0 to cancel): "))
+    except ValueError:
+        print("Invalid input.")
+        return
+
+    # This is because python indexing starts from 0 not 1
+    index = choice - 1
+    # Check if index is in range
+    if 0 <= index < len(inventory):
+        # Get That particular item from inventory
+        item = inventory[index]
+        # Checks if The Class has the attribute use
+        if hasattr(item, 'use'):
+            # Use Item
+            item.use(character)
+            # Remove Item from inventory
+            character.remove_item(item)
+            print(f"Used {item.get_name()}.")
+        else:
+            print("This item cannot be used.")
+    elif int(choice) == 0:
+        return
+
+    # Throw error if none of the conditions above are satisfied
+    else:
+        print("Invalid choice.")
+
+
+# Game Loop
+def game_loop():
+    # Starts the Intro of the game
+    player_name = intro()
+    # Character Object
+    character = select_character(player_name)
+    select_item(character)
+
+    # Loop to Keep the Game going
+    while True:
+        print("\nWhat would you like to do next?")
+        print("1. View Character Summary")
+        print("2. Add More Item")
+        print("3. Use Item")
+        print("4. Use Special Ability")
+        print("0. Quit")
+
+        action = input("Select an option: ")
+
+        # Character Summary
+        if action == "1":
+            print("\n--- Character Summary ---")
+            print(character)
+        # Add more Item
+        elif action == "2":
+            select_item(character)
+        # Use Item in inventory
+        elif action == "3":
+            use_item(character)
+        # Use Special Ability
+        elif action == "4":
+            character.use_special_ability(character)
+
+        # End Game
+        elif action == "0":
+            print("Game ended. See you in the next battle!")
             break
         else:
-            print("Incorrect! "
-                  f"Rounds left: {current.get_remaining_rounds()}")
+            print("Invalid input. Try again.")
 
-    else:
-        # Ran out of rounds for this puzzle
-        print("You failed this puzzle.")
 
-    # Show updated player stats
-    print(player)
-
-    # Remove solved/attempted puzzle so it won't repeat
-    puzzles.remove(current)
-
-print("Game Over: out of diamonds or puzzles.")
+# --- Start Game ---
+if __name__ == "__main__":
+    game_loop()
